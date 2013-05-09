@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;gameBoard
+// Removed 'gameBoard' after System.Linq
+using System.Linq;
 using System.Text;
 
 // Initial commit!
@@ -248,94 +249,80 @@ namespace Minesweeper
             //DisplayArrayOfMines();
 
             //TO DO: Some REFACTORING Used for go to !!!
-            begin:
-            //ADD Enviroment.Newline instead \n. Clear
+            
+            // Changed playersMove to playerMove. The string is initialized before the loop starts. TO DO: maybe refactor to avoid repeating code.
+            string playerMove = "";
             Console.WriteLine("Welcome to the game “Minesweeper”.{0} Try to reveal all cells without mines. Use 'TOP' to view the scoreboard, {0}'RESTART' to start a new game and 'EXIT' to quit the game.", Environment.NewLine);
-        
             InitializeArrayOfMines();
 
-            //TO DO:Refactoring with While!!!
-            // delete -> //tui "f:" e adski qko a?
-             f:
-            //ADD Enviroment.Newline and add meaning text
-            Console.WriteLine("{0} Please input your move: ",Environment.NewLine);
-            string playersMove = Console.ReadLine();
-
-            //TO DO: Must be refactored!!!
-            if (playersMove.Equals("restart"))
-            { 
-                goto begin; 
-            }
-
-            if (playersMove.Equals("top"))
-            { 
-                DisplayTop(); 
-                goto begin; 
-            }
-
-            if (playersMove.Equals("exit"))
+            while(playerMove != "end") 
             {
-                goto end;
-            }
+	            Console.WriteLine("{0} Please input your move: ", Environment.NewLine);
+	            playerMove = Console.ReadLine();
+	            // rename p1 to moveToRow
+	            int moveToRow;
+	            int moveToColumn;
+	
+	            // Instead of begin:
+	            if (playerMove == "top" || playerMove == "restart")
+	            {
+		            if (playerMove == "top")
+		            {
+			            DisplayTop(); 
+		            }
+		            Console.WriteLine("Welcome to the game “Minesweeper”.{0} Try to reveal all cells without mines. Use 'TOP' to view the scoreboard, {0}'RESTART' to start a new game and 'EXIT' to quit the game.", Environment.NewLine);
+	
+		            InitializeArrayOfMines();
+	            }
+	            //Instead of f:. I also added a check to see if the command is correct
+	            else if (playerMove.Length == 3 && int.TryParse(playerMove[0].ToString(), out moveToRow) && int.TryParse(playerMove[2].ToString(), out moveToColumn))
+	            {
+		            Console.WriteLine(moveToRow);
+		
+		            if (open[moveToRow, moveToColumn] == 0)
+		            {
+			            open[moveToRow, moveToColumn] = 1;
+			            gameBoard[moveToRow, moveToColumn] = 1;
 
-            // MAIN
-               // rename p to playersMove
-            if (playersMove.Length < 3)
-            { 
-                Console.WriteLine("Illegal input");
-                goto f;
-            }
+			            if (arrayOfMines[moveToRow, moveToColumn] == 1)
+			            {
+				            for (int i = 0; i < 5; i++)
+				            {
+					            for (int j = 0; j < 10; j++)
+					            { 
+						            gameBoard[i, j] = 1;
+					            }
+				            }
+				
+				            DisplayArrayOfMines();
+				            // rewrite some of the message 
+				            Console.WriteLine("Booooom! You were killed by a mine. {0} You score is {1}. Please enter your name for the top scoreboard: ", Environment.NewLine, playerScoreCounter);
 
-         // rename p1 to moveToRow
-            int moveToRow = Convert.ToInt32((playersMove.ElementAt(0)).ToString());
-        // rename p1 to moveToColumn
-            int moveToColumn = Convert.ToInt32((playersMove.ElementAt(2)).ToString());
+				            string name = Console.ReadLine();
 
-            Console.WriteLine(moveToRow);
-           
-            if (open[moveToRow, moveToColumn] == 1)
-            { 
-                Console.WriteLine("Illegal move!"); 
-                goto f;
-            }
-
-            if (open[moveToRow, moveToColumn] == 0)
-            {
-                open[moveToRow, moveToColumn] = 1;
-                gameBoard[moveToRow, moveToColumn] = 1;
-
-                if (arrayOfMines[moveToRow, moveToColumn] == 1)
-                {
-                    for (int i = 0; i < 5; i++)
-                        for (int j = 0; j < 10; j++)
-                        { 
-                            gameBoard[i, j] = 1;
-                        }
-
-                        DisplayArrayOfMines();
-                    // rewrite some of the message 
-                        Console.WriteLine("Booooom! You were killed by a mine. {0} You score is {1}. Please enter your name for the top scoreboard: ", Environment.NewLine, playerScoreCounter);
-
-                    string name = Console.ReadLine();
-
-                    playerName[playerScoreCounter % 5] = name;
-                    playerScore[playerScoreCounter % 5] = CountOpen() - 1;
-
-                    goto begin;
-
-                }
-
-                Console.WriteLine(CountNeighborcell(moveToRow, moveToColumn));
-
-                DisplayArrayOfMines();
-
-                goto f;
-
+				            playerName[playerScoreCounter % 5] = name;
+				            playerScore[playerScoreCounter % 5] = CountOpen() - 1;
+			            }		
+			            else
+			            {
+				            Console.WriteLine(CountNeighborcell(moveToRow, moveToColumn));
+				            DisplayArrayOfMines();
+			            }
+		            }
+		
+		            else if (open[moveToRow, moveToColumn] == 1)
+		            { 
+			            Console.WriteLine("Illegal move!"); 
+		            }
+	            }
+	            // Change from "(playersMove.Length < 3)". Now it checks for all invalid commands.
+	            else if(playerMove != "end")
+	            {
+		            Console.WriteLine("Illegal input");
+	            }
             }
             // remove //Console.WriteLine(w==q);
             Console.WriteLine();
-
-            end:
 
             Console.WriteLine("Good Bye!!!");
         }
